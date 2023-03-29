@@ -5,30 +5,30 @@
          "../solver.rkt"
          (prefix-in base/ "base-solver.rkt"))
 
-(provide (rename-out [make-cvc4 cvc4]) cvc4? cvc4-available?)
+(provide (rename-out [make-cvc5 cvc5]) cvc5? cvc5-available?)
 
-(define-runtime-path cvc4-path (build-path ".." ".." ".." "bin" "cvc4"))
-(define cvc4-opts '("-L" "smt2" "-q" "-m" "--bv-print-consts-as-indexed-symbols" "--bv-div-zero-const"))
+(define-runtime-path cvc5-path (build-path ".." ".." ".." "bin" "cvc5"))
+(define cvc5-opts '("-L" "smt2" "-q" "-m" "--bv-print-consts-as-indexed-symbols"))
 
-(define (cvc4-available?)
-  (not (false? (base/find-solver "cvc4" cvc4-path #f))))
+(define (cvc5-available?)
+  (not (false? (base/find-solver "cvc5" cvc5-path #f))))
 
-(define (make-cvc4 [solver #f] #:options [options (hash)] #:logic [logic #f] #:path [path #f])
+(define (make-cvc5 [solver #f] #:options [options (hash)] #:logic [logic #f] #:path [path #f])
   (define config
     (cond
-      [(cvc4? solver)
+      [(cvc5? solver)
        (base/solver-config solver)]
       [else
-       (define real-cvc4-path (base/find-solver "cvc4" cvc4-path path))
-       (when (and (false? real-cvc4-path) (not (getenv "PLT_PKG_BUILD_SERVICE")))
-         (error 'cvc4 "cvc4 binary is not available (expected to be at ~a); try passing the #:path argument to (cvc4)" (path->string (simplify-path cvc4-path))))
-       (base/config options real-cvc4-path logic)]))
-  (cvc4 (server (base/config-path config) cvc4-opts (base/make-send-options config)) config '() '() '() (env) '()))
+       (define real-cvc5-path (base/find-solver "cvc5" cvc5-path path))
+       (when (and (false? real-cvc5-path) (not (getenv "PLT_PKG_BUILD_SERVICE")))
+         (error 'cvc5 "cvc5 binary is not available (expected to be at ~a); try passing the #:path argument to (cvc5)" (path->string (simplify-path cvc5-path))))
+       (base/config options real-cvc5-path logic)]))
+  (cvc5 (server (base/config-path config) cvc5-opts (base/make-send-options config)) config '() '() '() (env) '()))
 
-(struct cvc4 base/solver ()
-  #:property prop:solver-constructor make-cvc4
+(struct cvc5 base/solver ()
+  #:property prop:solver-constructor make-cvc5
   #:methods gen:custom-write
-  [(define (write-proc self port mode) (fprintf port "#<cvc4>"))]
+  [(define (write-proc self port mode) (fprintf port "#<cvc5>"))]
   #:methods gen:solver
   [
    (define (solver-features self)
